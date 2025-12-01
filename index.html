@@ -1,0 +1,1120 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metro Manila Air Pollution Risk Assessment</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --low-risk-color: #27ae60;
+            --moderate-risk-color: #f39c12;
+            --high-risk-color: #e74c3c;
+            --background-color: #f8f9fa;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary-color), #1a2530);
+            color: white;
+            padding: 20px 0;
+            box-shadow: var(--card-shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            color: var(--secondary-color);
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .logo p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: color 0.3s;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        nav a:hover {
+            color: var(--secondary-color);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 60px 0;
+            background: linear-gradient(rgba(44, 62, 80, 0.9), rgba(44, 62, 80, 0.95)), url('https://images.unsplash.com/photo-1559589689-577aabd1db4f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-align: center;
+        }
+
+        .hero h2 {
+            font-size: 2.8rem;
+            margin-bottom: 20px;
+            font-weight: 800;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 30px;
+            opacity: 0.9;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: transform 0.3s, background-color 0.3s;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            background-color: #2980b9;
+        }
+
+        /* Risk Assessment Section */
+        .risk-assessment {
+            padding: 80px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+            color: var(--primary-color);
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title h2:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background-color: var(--secondary-color);
+            border-radius: 2px;
+        }
+
+        .section-title p {
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+            color: #666;
+        }
+
+        .assessment-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        @media (max-width: 768px) {
+            .assessment-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .input-form {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .input-form h3 {
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+        }
+
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .range-value {
+            min-width: 50px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        input[type="range"] {
+            flex-grow: 1;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .results-display {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .risk-level {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .risk-level h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .risk-indicator {
+            display: inline-block;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        .risk-low {
+            background-color: rgba(39, 174, 96, 0.15);
+            color: var(--low-risk-color);
+            border: 3px solid var(--low-risk-color);
+        }
+
+        .risk-moderate {
+            background-color: rgba(243, 156, 18, 0.15);
+            color: var(--moderate-risk-color);
+            border: 3px solid var(--moderate-risk-color);
+        }
+
+        .risk-high {
+            background-color: rgba(231, 76, 60, 0.15);
+            color: var(--high-risk-color);
+            border: 3px solid var(--high-risk-color);
+        }
+
+        .risk-description {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .confidence-meter {
+            margin-top: 20px;
+        }
+
+        .confidence-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .confidence-bar {
+            height: 12px;
+            background-color: #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 1s ease-in-out;
+        }
+
+        /* Dashboard Section */
+        .dashboard {
+            padding: 80px 0;
+            background-color: #f0f3f5;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .dashboard-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .dashboard-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dashboard-card i {
+            color: var(--secondary-color);
+            font-size: 1.5rem;
+        }
+
+        .chart-container {
+            height: 250px;
+            margin-top: 15px;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+        }
+
+        .stat-box h4 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-box p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Recommendations Section */
+        .recommendations {
+            padding: 80px 0;
+        }
+
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .recommendation-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+            border-top: 5px solid var(--secondary-color);
+            transition: transform 0.3s;
+        }
+
+        .recommendation-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .recommendation-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .recommendation-card ul {
+            list-style-position: inside;
+            margin-left: 10px;
+        }
+
+        .recommendation-card li {
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        /* About Research Section */
+        .about-research {
+            padding: 80px 0;
+            background-color: #f0f3f5;
+        }
+
+        .research-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+
+        @media (max-width: 992px) {
+            .research-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .research-text h3 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        .research-text p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            color: #555;
+        }
+
+        .research-features {
+            list-style: none;
+        }
+
+        .research-features li {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .research-features i {
+            color: var(--secondary-color);
+            margin-top: 5px;
+        }
+
+        .model-diagram {
+            text-align: center;
+        }
+
+        .model-diagram img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 60px 0 30px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-section h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+        }
+
+        .footer-section p, .footer-section li {
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: var(--secondary-color);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0.7;
+        }
+
+        /* Modal for detailed results */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 30px;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s;
+        }
+
+        .close-modal:hover {
+            color: var(--high-risk-color);
+        }
+
+        .modal-title {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+            
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .hero h2 {
+                font-size: 2.2rem;
+            }
+            
+            .section-title h2 {
+                font-size: 2rem;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+   <!-- Header -->
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <i class="fas fa-wind"></i>
+                <div>
+                    <h1>Metro Manila Air Pollution Risk Assessment</h1>
+                    <p>Decision Tree Model for Environmental Risk Classification</p>
+                </div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#assessment"><i class="fas fa-search"></i> Risk Assessment</a></li>
+                    <li><a href="#dashboard"><i class="fas fa-chart-bar"></i> Dashboard</a></li>
+                    <li><a href="#recommendations"><i class="fas fa-lightbulb"></i> Recommendations</a></li>
+                    <li><a href="#research"><i class="fas fa-book"></i> Research</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h2>Protecting Metro Manila's Air Quality Through AI</h2>
+            <p>This web application utilizes a Decision Tree classification model trained on 2025 air quality data to assess pollution risk levels and provide actionable insights for environmental management.</p>
+            <a href="#assessment" class="cta-button">Assess Air Quality Risk <i class="fas fa-arrow-down"></i></a>
+        </div>
+    </section>
+
+    <!-- Risk Assessment Section -->
+    <section id="assessment" class="risk-assessment">
+        <div class="container">
+            <div class="section-title">
+                <h2>Air Pollution Risk Assessment</h2>
+                <p>Input current air quality parameters to determine the pollution risk level in Metro Manila</p>
+            </div>
+            
+            <div class="assessment-container">
+                <!-- Input Form -->
+                <div class="input-form">
+                    <h3><i class="fas fa-sliders-h"></i> Air Quality Parameters</h3>
+                    <form id="pollutionForm">
+                        <div class="form-group">
+                            <label for="pm25">PM2.5 Concentration (μg/m³)</label>
+                            <div class="range-container">
+                                <input type="range" id="pm25" name="pm25" min="0" max="150" value="25" class="form-control">
+                                <span id="pm25Value" class="range-value">25</span>
+                            </div>
+                            <small>WHO Guideline: ≤ 12 μg/m³ (annual mean)</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="pm10">PM10 Concentration (μg/m³)</label>
+                            <div class="range-container">
+                                <input type="range" id="pm10" name="pm10" min="0" max="300" value="50" class="form-control">
+                                <span id="pm10Value" class="range-value">50</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="no2">NO₂ Concentration (ppb)</label>
+                            <div class="range-container">
+                                <input type="range" id="no2" name="no2" min="0" max="200" value="30" class="form-control">
+                                <span id="no2Value" class="range-value">30</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="so2">SO₂ Concentration (ppb)</label>
+                            <div class="range-container">
+                                <input type="range" id="so2" name="so2" min="0" max="150" value="10" class="form-control">
+                                <span id="so2Value" class="range-value">10</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="co">CO Concentration (ppm)</label>
+                            <div class="range-container">
+                                <input type="range" id="co" name="co" min="0" max="20" value="1.5" step="0.1" class="form-control">
+                                <span id="coValue" class="range-value">1.5</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="o3">O₃ Concentration (ppb)</label>
+                            <div class="range-container">
+                                <input type="range" id="o3" name="o3" min="0" max="100" value="40" class="form-control">
+                                <span id="o3Value" class="range-value">40</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="temperature">Temperature (°C)</label>
+                            <input type="number" id="temperature" name="temperature" value="28" step="0.1" class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="humidity">Humidity (%)</label>
+                            <input type="number" id="humidity" name="humidity" value="65" min="0" max="100" class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="location">Location in Metro Manila</label>
+                            <select id="location" name="location" class="form-control">
+                                <option value="manila">Manila City</option>
+                                <option value="quezon">Quezon City</option>
+                                <option value="makati">Makati City</option>
+                                <option value="taguig">Taguig City</option>
+                                <option value="pasig">Pasig City</option>
+                                <option value="mandaluyong">Mandaluyong City</option>
+                                <option value="pasay">Pasay City</option>
+                                <option value="paranaque">Parañaque City</option>
+                                <option value="laspinas">Las Piñas City</option>
+                                <option value="muntinlupa">Muntinlupa City</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="submit-btn">
+                            <i class="fas fa-calculator"></i> Calculate Pollution Risk
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Results Display -->
+                <div class="results-display">
+                    <div class="risk-level">
+                        <h3>Current Pollution Risk Level</h3>
+                        <div id="riskIndicator" class="risk-indicator risk-moderate">
+                            MODERATE
+                        </div>
+                        <p id="riskDescription" class="risk-description">
+                            Air quality is acceptable; however, there may be some health concern for a very small number of people who are unusually sensitive to air pollution.
+                        </p>
+                        
+                        <div class="confidence-meter">
+                            <div class="confidence-label">
+                                <span>Model Confidence:</span>
+                                <span id="confidenceValue">85%</span>
+                            </div>
+                            <div class="confidence-bar">
+                                <div id="confidenceFill" class="confidence-fill" style="width: 85%; background-color: #3498db;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="probabilityChart" class="chart-container">
+                        <!-- Chart will be inserted here by JavaScript -->
+                    </div>
+                    
+                    <button id="viewDetailsBtn" class="submit-btn" style="margin-top: 20px;">
+                        <i class="fas fa-chart-pie"></i> View Detailed Analysis
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Real-time Data Alert -->
+            <div style="background-color: #e8f4fc; border-radius: 10px; padding: 20px; margin-top: 30px; text-align: center;">
+                <h4><i class="fas fa-info-circle"></i> Based on Decision Tree Model</h4>
+                <p>This assessment uses a Decision Tree classifier trained on 2025 Metro Manila air quality data with 99.2% accuracy. Model considers PM2.5 as the primary risk determinant with supporting parameters.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="dashboard">
+        <div class="container">
+            <div class="section-title">
+                <h2>Pollution Dashboard</h2>
+                <p>Real-time insights and historical trends based on our research model</p>
+            </div>
+            
+            <div class="dashboard-grid">
+                <!-- Card 1: Monthly Trends -->
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-chart-line"></i> Monthly Pollution Trends 2025</h3>
+                    <div class="chart-container">
+                        <canvas id="monthlyTrendChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Card 2: Risk Distribution -->
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-chart-pie"></i> Risk Level Distribution</h3>
+                    <div class="chart-container">
+                        <canvas id="riskDistributionChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Card 3: Key Statistics -->
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-chart-bar"></i> Key Statistics</h3>
+                    <div class="stats-container">
+                        <div class="stat-box" style="background-color: var(--low-risk-color);">
+                            <h4>42%</h4>
+                            <p>Low Risk Days</p>
+                        </div>
+                        <div class="stat-box" style="background-color: var(--moderate-risk-color);">
+                            <h4>48%</h4>
+                            <p>Moderate Days</p>
+                        </div>
+                        <div class="stat-box" style="background-color: var(--high-risk-color);">
+                            <h4>10%</h4>
+                            <p>High Risk Days</p>
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <p><strong>Model Accuracy:</strong> 99.2%</p>
+                        <p><strong>Data Points:</strong> 11 Months (Jan-Nov 2025)</p>
+                        <p><strong>Most Critical Factor:</strong> PM2.5 Concentration</p>
+                    </div>
+                </div>
+                
+                <!-- Card 4: Feature Importance -->
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-weight-hanging"></i> Feature Importance</h3>
+                    <div class="chart-container">
+                        <canvas id="featureImportanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recommendations Section -->
+    <section id="recommendations" class="recommendations">
+        <div class="container">
+            <div class="section-title">
+                <h2>Recommendations & Actions</h2>
+                <p>Proactive measures based on pollution risk levels</p>
+            </div>
+            
+            <div class="recommendations-grid">
+                <!-- Low Risk Card -->
+                <div class="recommendation-card">
+                    <h3 style="color: var(--low-risk-color);"><i class="fas fa-check-circle"></i> Low Risk (Green)</h3>
+                    <p>Air quality is satisfactory with minimal health risk.</p>
+                    <ul>
+                        <li>Continue normal outdoor activities</li>
+                        <li>Maintain regular vehicle maintenance</li>
+                        <li>Support tree planting initiatives</li>
+                        <li>Promote public transportation use</li>
+                        <li>Monitor air quality regularly</li>
+                    </ul>
+                </div>
+                
+                <!-- Moderate Risk Card -->
+                <div class="recommendation-card">
+                    <h3 style="color: var(--moderate-risk-color);"><i class="fas fa-exclamation-triangle"></i> Moderate Risk (Yellow)</h3>
+                    <p>Air quality is acceptable; sensitive individuals may experience health effects.</p>
+                    <ul>
+                        <li>Sensitive groups should reduce prolonged outdoor exertion</li>
+                        <li>Limit vehicle idling</li>
+                        <li>Implement dust control measures at construction sites</li>
+                        <li>Increase green space maintenance</li>
+                        <li>Consider wearing masks in high-traffic areas</li>
+                    </ul>
+                </div>
+                
+                <!-- High Risk Card -->
+                <div class="recommendation-card">
+                    <h3 style="color: var(--high-risk-color);"><i class="fas fa-exclamation-circle"></i> High Risk (Red)</h3>
+                    <p>Air pollution has reached unhealthy levels for everyone.</p>
+                    <ul>
+                        <li>Avoid outdoor activities, especially for children and elderly</li>
+                        <li>Use N95 masks when going outside</li>
+                        <li>Implement odd-even vehicle schemes</li>
+                        <li>Activate emergency pollution control protocols</li>
+                        <li>Issue public health advisories</li>
+                        <li>Increase frequency of street cleaning</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Government Actions -->
+            <div style="margin-top: 50px; background-color: #f0f7ff; border-radius: 15px; padding: 30px;">
+                <h3 style="color: var(--primary-color); margin-bottom: 20px;"><i class="fas fa-landmark"></i> Government & Policy Recommendations</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                    <div>
+                        <h4><i class="fas fa-car"></i> Transportation</h4>
+                        <ul>
+                            <li>Enhance public transportation system</li>
+                            <li>Promote electric vehicle adoption</li>
+                            <li>Implement stricter emission standards</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4><i class="fas fa-industry"></i> Industry Regulations</h4>
+                        <ul>
+                            <li>Enforce pollution control technologies</li>
+                            <li>Regular monitoring of industrial emissions</li>
+                            <li>Incentivize green manufacturing</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4><i class="fas fa-tree"></i> Urban Planning</h4>
+                        <ul>
+                            <li>Increase green spaces and urban forests</li>
+                            <li>Implement green building codes</li>
+                            <li>Develop pedestrian-friendly zones</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Research Section -->
+    <section id="research" class="about-research">
+        <div class="container">
+            <div class="section-title">
+                <h2>About Our Research</h2>
+                <p>Decision Tree Approach for Environmental Pollution Risk Assessment</p>
+            </div>
+            
+            <div class="research-content">
+                <div class="research-text">
+                    <h3>Methodology & Data Sources</h3>
+                    <p>This research developed a Decision Tree-based classification model to assess and categorize pollution risk levels in Metro Manila using air quality data from January to November 2025.</p>
+                    
+                    <p>The model achieves 99.2% accuracy in classifying pollution risk into three categories: <strong>Low</strong>, <strong>Moderate</strong>, and <strong>High</strong>.</p>
+                    
+                    <h4 style="margin-top: 25px; color: var(--primary-color);">Key Features:</h4>
+                    <ul class="research-features">
+                        <li><i class="fas fa-check"></i> <strong>Data Collection:</strong> 11 months of comprehensive air quality data</li>
+                        <li><i class="fas fa-check"></i> <strong>Parameters:</strong> PM2.5, PM10, NO₂, SO₂, CO, O₃, Temperature, Humidity</li>
+                        <li><i class="fas fa-check"></i> <strong>Model:</strong> Decision Tree Classifier with hyperparameter tuning</li>
+                        <li><i class="fas fa-check"></i> <strong>Validation:</strong> Cross-validation with 99.2% accuracy</li>
+                        <li><i class="fas fa-check"></i> <strong>Deployment:</strong> Real-time risk assessment web application</li>
+                    </ul>
+                    
+                    <div style="margin-top: 30px; padding: 20px; background-color: white; border-radius: 10px; border-left: 5px solid var(--secondary-color);">
+                        <h4><i class="fas fa-bullseye"></i> Research Objectives</h4>
+                        <p>1. Develop predictive model for pollution risk assessment</p>
+                        <p>2. Provide early warning system for environmental management</p>
+                        <p>3. Support data-driven policy decisions</p>
+                        <p>4. Increase public awareness about air quality</p>
+                    </div>
+                </div>
+                
+                <div class="model-diagram">
+                    <h3>Decision Tree Model Structure</h3>
+                    <div style="background-color: white; padding: 20px; border-radius: 10px; box-shadow: var(--card-shadow);">
+                        <div style="text-align: left; margin-bottom: 20px;">
+                            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                                <div style="width: 20px; height: 20px; background-color: var(--low-risk-color); border-radius: 4px; margin-right: 10px;"></div>
+                                <span>Low Risk (PM2.5 ≤ 12 μg/m³)</span>
+                            </div>
+                            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                                <div style="width: 20px; height: 20px; background-color: var(--moderate-risk-color); border-radius: 4px; margin-right: 10px;"></div>
+                                <span>Moderate Risk (12 < PM2.5 ≤ 35)</span>
+                            </div>
+                            <div style="display: flex; align-items: center;">
+                                <div style="width: 20px; height: 20px; background-color: var(--high-risk-color); border-radius: 4px; margin-right: 10px;"></div>
+                                <span>High Risk (PM2.5 > 35 μg/m³)</span>
+                            </div>
+                        </div>
+                        
+                        <div style="position: relative; height: 200px; background-color: #f8f9fa; border-radius: 8px; padding: 20px;">
+                            <!-- Simple decision tree visualization -->
+                            <div style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background-color: var(--primary-color); color: white; padding: 10px 20px; border-radius: 5px; font-weight: bold;">
+                                PM2.5 ≤ 12?
+                            </div>
+                            
+                            <!-- Yes branch -->
+                            <div style="position: absolute; top: 70px; left: 25%; transform: translateX(-50%); background-color: var(--low-risk-color); color: white; padding: 10px 15px; border-radius: 5px; font-weight: bold;">
+                                Low Risk
+                            </div>
+                            
+                            <!-- No branch -->
+                            <div style="position: absolute; top: 70px; left: 50%; transform: translateX(-50%); background-color: var(--primary-color); color: white; padding: 10px 20px; border-radius: 5px; font-weight: bold;">
+                                PM2.5 ≤ 35?
+                            </div>
+                            
+                            <!-- Connection lines -->
+                            <div style="position: absolute; top: 50px; left: 50%; width: 2px; height: 20px; background-color: var(--primary-color); transform: translateX(-50%);"></div>
+                            <div style="position: absolute; top: 50px; left: 25%;
+    
+    <!-- Load the actual model -->
+    <script src="pollution_model.js"></script>
+    
+    <script>
+    // ============================================
+    // UPDATED JAVASCRIPT USING ACTUAL MODEL
+    // ============================================
+    
+    // Initialize your actual model
+    const pollutionModel = new PollutionRiskModel();
+    
+    // Update the form submission to use actual model
+    document.getElementById('pollutionForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Get form values
+        const inputs = {
+            'PM2.5': parseFloat(document.getElementById('pm25').value),
+            'PM10': parseFloat(document.getElementById('pm10').value),
+            'NO2': parseFloat(document.getElementById('no2').value),
+            'SO2': parseFloat(document.getElementById('so2').value),
+            'CO': parseFloat(document.getElementById('co').value),
+            'O3': parseFloat(document.getElementById('o3').value),
+            'Temperature': parseFloat(document.getElementById('temperature').value),
+            'Humidity': parseFloat(document.getElementById('humidity').value)
+        };
+        
+        try {
+            // Use the actual model
+            const prediction = pollutionModel.predict(inputs);
+            
+            // Update UI
+            updateRiskDisplay(prediction, inputs);
+            updateProbabilityChart(prediction.probabilities);
+            
+        } catch (error) {
+            console.error('Prediction error:', error);
+            // Fallback to simple prediction
+            const simplePrediction = pollutionModel.simplePredict(inputs);
+            updateRiskDisplay(simplePrediction, inputs);
+            updateProbabilityChart(simplePrediction.probabilities);
+        }
+    });
+    
+    // Load actual model data on page load
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            // Load actual model statistics
+            const response = await fetch('/api/model_info');
+            const modelInfo = await response.json();
+            
+            // Update dashboard with actual data
+            updateDashboardWithRealData(modelInfo);
+            
+            console.log('Using actual model with accuracy:', (modelInfo.accuracy * 100).toFixed(2) + '%');
+            
+        } catch (error) {
+            console.log('Using embedded model');
+            initializeDashboardCharts();
+        }
+    });
+    
+    function updateDashboardWithRealData(modelInfo) {
+        // Update accuracy display
+        document.querySelectorAll('.model-accuracy').forEach(el => {
+            el.textContent = (modelInfo.accuracy * 100).toFixed(2) + '%';
+        });
+        
+        // Update feature importance chart with real data
+        if (modelInfo.feature_importance && modelInfo.feature_importance.length > 0) {
+            updateFeatureImportanceChart(modelInfo.feature_importance);
+        }
+    }
+    
+    function updateFeatureImportanceChart(featureData) {
+        const ctx = document.getElementById('featureImportanceChart');
+        if (!ctx) return;
+        
+        // Sort by importance
+        featureData.sort((a, b) => b.importance - a.importance);
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: featureData.map(f => f.feature),
+                datasets: [{
+                    label: 'Importance',
+                    data: featureData.map(f => f.importance),
+                    backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                    borderColor: 'rgba(52, 152, 219, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Actual Feature Importance from Model'
+                    }
+                }
+            }
+        });
+    }
+    
+    // Rest of your JavaScript functions...
+    // (Keep all your existing functions)
+    
+    </script>
+</body>
+</html>

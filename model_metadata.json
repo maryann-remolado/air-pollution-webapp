@@ -1,0 +1,72 @@
+{
+  "model_name": "Metro Manila Pollution Risk Classifier",
+  "model_type": "Decision Tree",
+  "accuracy": 0.9765704336303602,
+  "training_date": "2025-12-01 16:27:34",
+  "dataset": "January-November 2025 Air Quality Data",
+  "sample_size": 1011146,
+  "features": [
+    "components.pm10",
+    "components.o3",
+    "components.so2",
+    "components.pm2_5",
+    "main.aqi",
+    "components.no",
+    "city_name",
+    "components.co",
+    "components.nh3",
+    "components.no2"
+  ],
+  "target_classes": [
+    "High",
+    "Low",
+    "Moderate"
+  ],
+  "feature_importance": [
+    {
+      "feature": "main.aqi",
+      "importance": 0.7812476972828994
+    },
+    {
+      "feature": "components.co",
+      "importance": 0.055853990837760124
+    },
+    {
+      "feature": "components.o3",
+      "importance": 0.041464413691177864
+    },
+    {
+      "feature": "components.so2",
+      "importance": 0.03063653194258543
+    },
+    {
+      "feature": "components.nh3",
+      "importance": 0.030254916685169664
+    },
+    {
+      "feature": "components.no2",
+      "importance": 0.02313853227681985
+    },
+    {
+      "feature": "city_name",
+      "importance": 0.021465156594245513
+    },
+    {
+      "feature": "components.no",
+      "importance": 0.015905746079297196
+    },
+    {
+      "feature": "components.pm10",
+      "importance": 1.9248141570926415e-05
+    },
+    {
+      "feature": "components.pm2_5",
+      "importance": 1.3766468474009175e-05
+    }
+  ],
+  "risk_thresholds": {
+    "low": "PM2.5 \u2264 12 \u03bcg/m\u00b3",
+    "moderate": "12 < PM2.5 \u2264 35 \u03bcg/m\u00b3",
+    "high": "PM2.5 > 35 \u03bcg/m\u00b3"
+  }
+}
