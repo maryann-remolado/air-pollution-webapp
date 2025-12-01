@@ -1,150 +1,88 @@
-
-# ============================================
-# FLASK WEB APP FOR POLLUTION RISK ASSESSMENT
-# ============================================
-
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, jsonify, request, send_file
+from flask_cors import CORS
 import joblib
-import numpy as np
 import pandas as pd
 import json
-import os
+import numpy as np
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='.', static_url_path='')
+CORS(app)
 
-# Load the trained model
-MODEL_PATH = 'pollution_model.joblib'
-ENCODER_PATH = 'target_encoder.joblib'
-FEATURES_PATH = 'feature_names.json'
+# Load model and metadata
+try:
+    model = joblib.load('pollution_risk_model.pkl')
+    with open('model_metadata.json', 'r') as f:
+        model_metadata = json.load(f)
+    print("Model loaded successfully")
+except Exception as e:
+    print(f"Error loading model: {e}")
+    model = None
 
-model = joblib.load(MODEL_PATH)
-encoder = joblib.load(ENCODER_PATH)
-
-with open(FEATURES_PATH, 'r') as f:
-    feature_names = json.load(f)
-
-def prepare_input(data):
-    """Prepare input data for prediction"""
-    # Create a DataFrame with all features set to 0
-    input_df = pd.DataFrame(columns=feature_names)
-    
-    # Update with provided values
-    for feature in feature_names:
-        if feature in data:
-            input_df[feature] = [float(data[feature])]
-        else:
-            input_df[feature] = [0.0]  # Default value
-    
-    # Ensure correct column order
-    input_df = input_df[feature_names]
-    
-    return input_df
+# Location mapping
+location_mapping = {
+    'manila': 0, 'quezon': 1, 'makati': 2, 'taguig': 3,
+    'pasig': 4, 'mandaluyong': 5, 'pasay': 6, 'paranaque': 7,
+    'laspinas': 8, 'muntinlupa': 9
+}
 
 @app.route('/')
 def home():
-    """Serve the main web page"""
-    return render_template('index.html')
+    return send_file('index.html')
+
+@app.route('/api/health')
+def health():
+    return jsonify({
+        "status": "healthy",
+        "model_loaded": model is not None,
+        "model_accuracy": model_metadata.get('accuracy', 'unknown') if model else 'no model'
+    })
 
 @app.route('/api/predict', methods=['POST'])
 def predict():
-    """API endpoint for predictions"""
+    if model is None:
+        return jsonify({"error": "Model not loaded"}), 500
+    
     try:
-        # Get data from request
         data = request.json
         
-        # Prepare input
-        input_df = prepare_input(data)
+        # Prepare features
+        features = [
+            float(data.get('pm25', 0)),
+            float(data.get('pm10', 0)),
+            float(data.get('no2', 0)),
+            float(data.get('so2', 0)),
+            float(data.get('co', 0)),
+            float(data.get('o3', 0)),
+            float(data.get('temperature', 0)),
+            float(data.get('humidity', 0)),
+            location_mapping.get(data.get('location', 'manila'), 0)
+        ]
         
         # Make prediction
-        prediction = model.predict(input_df)[0]
-        probabilities = model.predict_proba(input_df)[0]
+        prediction = model.predict([features])[0]
         
-        # Decode prediction
-        risk_level = encoder.inverse_transform([prediction])[0]
+        # Get probabilities if available
+        if hasattr(model, 'predict_proba'):
+            probabilities = model.predict_proba([features])[0]
+        else:
+            probabilities = [0.33, 0.34, 0.33]
         
-        # Create response
-        response = {
-            'success': True,
-            'prediction': {
-                'risk_level': risk_level,
-                'confidence': float(np.max(probabilities)),
-                'probabilities': {
-                    encoder.classes_[i]: float(prob) 
-                    for i, prob in enumerate(probabilities)
-                }
-            },
-            'input_features': data,
-            'model_info': {
-                'type': 'Decision Tree',
-                'accuracy': 0.9766,  # Update with your actual accuracy
-                'features_used': feature_names
+        risk_levels = {0: 'Low', 1: 'Moderate', 2: 'High'}
+        risk = risk_levels.get(prediction, 'Moderate')
+        confidence = round(probabilities[prediction] * 100, 2)
+        
+        return jsonify({
+            "risk_level": risk,
+            "confidence": confidence,
+            "probabilities": {
+                "Low": round(probabilities[0] * 100, 2),
+                "Moderate": round(probabilities[1] * 100, 2),
+                "High": round(probabilities[2] * 100, 2)
             }
-        }
-        
-        return jsonify(response)
+        })
         
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 400
-
-@app.route('/api/model_info', methods=['GET'])
-def model_info():
-    """Get model information"""
-    # Load feature importance
-    feature_importance = []
-    if os.path.exists('feature_importance.csv'):
-        df = pd.read_csv('feature_importance.csv')
-        feature_importance = df.to_dict('records')
-    
-    info = {
-        'model_name': 'Metro Manila Pollution Risk Classifier',
-        'accuracy': 0.9766,  # Your actual accuracy
-        'dataset': 'January-November 2025 Air Quality Data',
-        'features': feature_names,
-        'target_classes': encoder.classes_.tolist(),
-        'feature_importance': feature_importance,
-        'risk_thresholds': {
-            'low': 'PM2.5 ≤ 12 μg/m³',
-            'moderate': '12 < PM2.5 ≤ 35 μg/m³',
-            'high': 'PM2.5 > 35 μg/m³'
-        }
-    }
-    
-    return jsonify(info)
-
-@app.route('/api/sample_predictions', methods=['GET'])
-def sample_predictions():
-    """Get sample predictions for demonstration"""
-    samples = [
-        {
-            'name': 'Clean Day',
-            'inputs': {
-                'PM2.5': 8.5, 'PM10': 25.0, 'NO2': 15.0,
-                'SO2': 5.0, 'CO': 0.8, 'O3': 35.0,
-                'Temperature': 28.5, 'Humidity': 65.0
-            }
-        },
-        {
-            'name': 'Moderate Pollution',
-            'inputs': {
-                'PM2.5': 25.0, 'PM10': 55.0, 'NO2': 35.0,
-                'SO2': 12.0, 'CO': 2.0, 'O3': 55.0,
-                'Temperature': 30.0, 'Humidity': 75.0
-            }
-        },
-        {
-            'name': 'High Pollution',
-            'inputs': {
-                'PM2.5': 45.0, 'PM10': 85.0, 'NO2': 65.0,
-                'SO2': 25.0, 'CO': 4.5, 'O3': 75.0,
-                'Temperature': 32.0, 'Humidity': 85.0
-            }
-        }
-    ]
-    
-    return jsonify(samples)
+        return jsonify({"error": str(e)}), 400
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True)
